@@ -1,0 +1,8 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form action="{{ url_for('display_index') }}" method="GET">
+    {{ form.back_button }}
+</form>
+
+{% endblock %}
