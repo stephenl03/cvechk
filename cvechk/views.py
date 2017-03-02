@@ -19,3 +19,9 @@ def submit_check():
     cvetext = form_cveinput.uinputtext.data.strip()
 
     return render_template('results.html', form=ResultsForm())
+
+
+
+@app.route('/legal')
+def display_legal():
+    return render_template('legal.html')
