@@ -1,8 +1,19 @@
 {% extends "base.html" %}
 {% block content %}
 
-<form action="{{ url_for('display_index') }}" method="GET">
-    {{ form.back_button }}
-</form>
+<p><b>CVE Information:</b></p>
+{% for link in rhdata['cveurls'] %}
+    <a href={{ link }}>{{ link }}</a><br/>
+{% endfor %}
+
+<p><b>Red Hat Security Advisories:</b></p>
+{% for link in rhdata['rhsa'] %}
+    <a href={{ link }}>{{ link }}</a><br/>
+{% endfor %}
+
+<p><b>Latest fixed packages:</b></p>
+{% for pkg in rhdata['pkgs'] %}
+    {{ pkg }}<br />
+{% endfor %}
 
 {% endblock %}
