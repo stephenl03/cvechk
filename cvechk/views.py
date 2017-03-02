@@ -22,7 +22,9 @@ def submit_check():
     if oschoice.startswith('rhel'):
         rhdata = mod_rhel.rh_get_pkgs(cves, oschoice)
 
-    return render_template('results.html', form=ResultsForm(), rhdata=rhdata)
+        return render_template('results.html', form=ResultsForm(), data=rhdata)
+    else:
+        return render_template('index.html', form=form_cveinput)
 
 
 @app.route('/legal')
