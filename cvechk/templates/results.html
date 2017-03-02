@@ -2,17 +2,17 @@
 {% block content %}
 
 <p><b>CVE Information:</b></p>
-{% for link in rhdata['cveurls'] %}
+{% for link in data['cveurls'] %}
     <a href={{ link }}>{{ link }}</a><br/>
 {% endfor %}
 
 <p><b>Red Hat Security Advisories:</b></p>
-{% for link in rhdata['rhsa'] %}
+{% for link in data['rhsa'] %}
     <a href={{ link }}>{{ link }}</a><br/>
 {% endfor %}
 
 <p><b>Latest fixed packages:</b></p>
-{% for pkg in rhdata['pkgs'] %}
+{% for pkg in data['pkgs'] %}
     {{ pkg }}<br />
 {% endfor %}
 
