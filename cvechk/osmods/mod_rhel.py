@@ -40,17 +40,3 @@ def rh_get_pkgs(cve, os):
 
     # Use set() here to avoid duplicate output.
     return dict(rhsa=sorted(set(rhsa_urls)), pkgs=sorted(set(packages)))
-
-
-def get_cve_file(filename):
-    cve_pattern = re.compile(r'CVE-\d{4}-\d{4}')
-    file_data = []
-    cve_matches = []
-    with open(filename, 'r') as infile:
-        file_data = infile.readlines()
-    for line in file_data:
-        cve = cve_pattern.search(line)
-        if cve:
-            cve_matches.append(cve.group())
-
-    return cve_matches
