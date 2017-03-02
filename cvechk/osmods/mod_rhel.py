@@ -12,14 +12,10 @@ def rh_get_data(cvenum):
     r = requests.get(query)
 
     if r.status_code != 200:
-        print('ERROR: Invalid request; returned {} for the following '
-              'query:\n{}'.format(r.status_code, query))
-        sys.exit(1)
+        return None
 
     if not r.json():
-        print('No data returned with the following query:')
-        print(query)
-        sys.exit(0)
+        return None
 
     return r.json()
 
@@ -27,16 +23,21 @@ def rh_get_data(cvenum):
 def rh_get_pkgs(cve, os):
     os_list = {'rhel6': 'Red Hat Enterprise Linux 6',
                'rhel7': 'Red Hat Enterprise Linux 7'}
+    cve_urls = []
     rhsa_urls = []
     packages = []
 
     errata_url = 'https://rhn.redhat.com/errata/'
 
     for c in cve:
-        for i in rh_get_data(c)['affected_release']:
-            if i['product_name'] == os_list[os]:
-                rhsa_urls.append(errata_url + i['advisory'] + '.html')
-                packages.append(i['package'])
+        try:
+            for i in rh_get_data(c)['affected_release']:
+                cve_urls.append('https://access.redhat.com/security/cve/{}'.format(c))
+                if i['product_name'] == os_list[os]:
+                    rhsa_urls.append(errata_url + i['advisory'].replace(':', '-') + '.html')
+                    packages.append(i['package'])
+        except TypeError:
+            continue
 
     # Use set() here to avoid duplicate output.
-    return dict(rhsa=sorted(set(rhsa_urls)), pkgs=sorted(set(packages)))
+    return dict(cveurls=sorted(set(cve_urls)), rhsa=sorted(set(rhsa_urls)), pkgs=sorted(set(packages)))
