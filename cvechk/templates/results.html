@@ -1,6 +1,11 @@
 {% extends "base.html" %}
 {% block content %}
 
+<p id="disclaimer"><b>
+These results are to be used for reference purposes only.<br/>
+Author does not guarantee they will result in the passing of any specific compliance requirement.
+</b></p>
+
 <p><b>CVE Information:</b></p>
 {% for link in data['cveurls'] %}
     <a href={{ link }}>{{ link }}</a><br/>
