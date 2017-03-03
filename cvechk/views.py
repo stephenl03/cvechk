@@ -3,7 +3,7 @@ from flask import render_template
 from cvechk import app
 from cvechk.forms import CVEInputForm, ResultsForm
 from cvechk.osmods import mod_rhel
-from cvechk.utils import get_cve_text
+from cvechk.utils import get_cve_text, redis_get_data, redis_set_data
 
 
 @app.route('/')
@@ -19,14 +19,16 @@ def submit_check():
     cvetext = form_cveinput.uinputtext.data.strip()
 
     cves = get_cve_text(cvetext)
+
+    print(app.config['ENABLE_CACHE'])
+
     if oschoice.startswith('rhel'):
         rhdata = mod_rhel.rh_get_pkgs(cves, oschoice)
+
+        if app.config['ENABLE_CACHE']:
+            print('setting data')
+            redis_set_data(oschoice, rhdata)
 
         return render_template('results.html', form=ResultsForm(), data=rhdata)
     else:
         return render_template('index.html', form=form_cveinput)
-
-
-@app.route('/legal')
-def display_legal():
-    return render_template('legal.html')
