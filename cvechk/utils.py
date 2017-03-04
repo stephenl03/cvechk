@@ -1,4 +1,5 @@
 from cvechk import app
+from cvechk.osmods import mod_rhel
 
 import re
 import redis
@@ -16,17 +17,24 @@ def get_cve_text(intext):
 
 
 def redis_get_data(os, cvelist):
-    redis_conn = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
+    redis_conn = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db,
+                                   decode_responses=True)
+
     cvedata = {}
+    extra = []
 
     for cve in cvelist:
-        cache = redis_conn.hgetall(os + ':' + cve)
-        cvedata[cve] = cache
+        cached = redis_conn.hgetall(os + ':' + cve)
+        cvedata[cve] = {'cveurls': [u.strip("['] ") for u in cached['cveurls'].split(',')],
+                        'pkgs': [p.strip("['] ") for p in cached['pkgs'].split(',')],
+                        'rhsa': [r.strip("['] ") for r in cached['rhsa'].split(',')]}
+        extra = [x for x in cvelist if x not in cvedata.keys()]
+        for cve in extra:
+            cvedata[cve] = mod_rhel.rh_get_pkgs(os, cve)
 
     return cvedata
 
 
-def redis_set_data(os, cvedata):
+def redis_set_data(key, cvedata):
     redis_conn = redis.StrictRedis(host=redis_host, port=redis_port, db=redis_db)
-    for cve in cvedata.keys():
-        redis_conn.hmset(os + ':' + cve, cvedata[cve])
+    redis_conn.hmset(key, cvedata)
