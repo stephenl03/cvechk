@@ -1,24 +1,25 @@
 {% extends "base.html" %}
 {% block content %}
 
-<p id="disclaimer"><b>
-These results are to be used for reference purposes only.<br/>
-Author does not guarantee they will result in the passing of any specific compliance requirement.
-</b></p>
-
 <p><b>CVE Information:</b></p>
-{% for link in data['cveurls'] %}
-    <a href={{ link }}>{{ link }}</a><br/>
+{% for cve in data %}
+    {% for link in data[cve]['cveurls'] %}
+        <a href={{ link }}>{{ link }}</a><br/>
+    {% endfor %}
 {% endfor %}
 
 <p><b>Red Hat Security Advisories:</b></p>
-{% for link in data['rhsa'] %}
-    <a href={{ link }}>{{ link }}</a><br/>
+{% for cve in data %}
+    {% for link in data[cve]['rhsa'] %}
+        <a href={{ link }}>{{ link }}</a><br/>
+    {% endfor %}
 {% endfor %}
 
 <p><b>Latest fixed packages:</b></p>
-{% for pkg in data['pkgs'] %}
-    {{ pkg }}<br />
+{% for cve in data %}
+    {% for pkg in data[cve]['pkgs'] %}
+        {{ pkg }}<br />
+    {% endfor %}
 {% endfor %}
 
 {% endblock %}
