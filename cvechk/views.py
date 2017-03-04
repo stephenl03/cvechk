@@ -20,14 +20,12 @@ def submit_check():
 
     cves = get_cve_text(cvetext)
 
-    print(app.config['ENABLE_CACHE'])
+    if app.config['ENABLE_CACHE']:
+        cachedata = redis_get_data(oschoice, cves)
+        return render_template('results.html', form=ResultsForm(), data=cachedata)
 
-    if oschoice.startswith('rhel'):
-        rhdata = mod_rhel.rh_get_pkgs(cves, oschoice)
-
-        if app.config['ENABLE_CACHE']:
-            print('setting data')
-            redis_set_data(oschoice, rhdata)
+    elif oschoice.startswith('rhel'):
+        rhdata = mod_rhel.rh_get_pkgs(oschoice, cves)
 
         return render_template('results.html', form=ResultsForm(), data=rhdata)
     else:
