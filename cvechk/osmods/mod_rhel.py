@@ -11,13 +11,10 @@ def rh_get_data(cvenum):
 
     r = requests.get(query)
 
-    if r.status_code != 200:
+    if r.status_code != 200 or not r.json:
         return None
-
-    if not r.json():
-        return None
-
-    return r.json()
+    else:
+        return r.json()
 
 
 def rh_get_pkgs(os, cve):
