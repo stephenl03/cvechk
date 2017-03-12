@@ -4,7 +4,11 @@
 <p><b>CVE Information:</b></p>
 {% for cve in data %}
     {% for link in data[cve]['cveurls'] %}
-        <a href={{ link }}>{{ link }}</a><br/>
+        {% if not data[cve]['pkgs'] %}
+            <a href={{ link }}>{{ link }}</a> (no applicable package)<br/>
+        {% else %}
+            <a href={{ link }}>{{ link }}</a><br/>
+        {% endif %}
     {% endfor %}
 {% endfor %}
 
@@ -17,9 +21,11 @@
 
 <p><b>Fixed packages:</b></p>
 {% for cve in data %}
-    {% for pkg in data[cve]['pkgs'] %}
-        {{ pkg }}<br />
-    {% endfor %}
+    {% if data[cve]['pkgs'] %}
+        {% for pkg in data[cve]['pkgs'] %}
+            {{ pkg }}<br />
+        {% endfor %}
+    {% endif %}
 {% endfor %}
 
 {% endblock %}
