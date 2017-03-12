@@ -15,7 +15,7 @@
     {% endfor %}
 {% endfor %}
 
-<p><b>Latest fixed packages:</b></p>
+<p><b>Fixed packages:</b></p>
 {% for cve in data %}
     {% for pkg in data[cve]['pkgs'] %}
         {{ pkg }}<br />

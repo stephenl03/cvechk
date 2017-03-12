@@ -11,8 +11,8 @@ def display_index():
     return render_template('index.html', form=CVEInputForm())
 
 
-@app.route('/submit_check', methods=['POST'])
-def submit_check():
+@app.route('/results', methods=['POST'])
+def results():
     form_cveinput = CVEInputForm()
 
     oschoice = form_cveinput.uos.data
