@@ -22,7 +22,12 @@ def submit_check():
 
     if app.config['ENABLE_CACHE']:
         cachedata = redis_get_data(oschoice, cves)
-        return render_template('results.html', form=ResultsForm(), data=cachedata)
+        if len(cachedata) > 0:
+            print(cachedata)
+            return render_template('results.html', form=ResultsForm(), data=cachedata)
+        else:
+            rhdata = mod_rhel.rh_get_pkgs(oschoice, cves)
+            return render_template('results.html', form=ResultsForm(), data=rhdata)
 
     elif oschoice.startswith('rhel'):
         rhdata = mod_rhel.rh_get_pkgs(oschoice, cves)
