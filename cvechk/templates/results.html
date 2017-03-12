@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% block content %}
+
+<p><b>CVE Information:</b></p>
+{% for cve in data %}
+    {% for link in data[cve]['cveurls'] %}
+        <a href={{ link }}>{{ link }}</a><br/>
+    {% endfor %}
+{% endfor %}
+
+<p><b>Red Hat Security Advisories:</b></p>
+{% for cve in data %}
+    {% for link in data[cve]['rhsa'] %}
+        <a href={{ link }}>{{ link }}</a><br/>
+    {% endfor %}
+{% endfor %}
+
+<p><b>Fixed packages:</b></p>
+{% for cve in data %}
+    {% for pkg in data[cve]['pkgs'] %}
+        {{ pkg }}<br />
+    {% endfor %}
+{% endfor %}
+
+{% endblock %}

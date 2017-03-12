@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="../static/css/styles.css" type="text/css">
+    {% if title %}
+    <title>{{ title }}</title>
+    {% else %}
+    <title>cvechk</title>
+    {% endif %}
+</head>
+<body>
+    <div id="header">
+        <h1>cvechk</h1>
+    </div>
+    <div id="navbar">
+		| <a href="https://github.com/evitalis/cvechk.net">Source</a>
+        |
+    </div>
+    <hr />
+    <div id="content">
+        {% block content %}
+        {% endblock %}
+    </div>
+</body>
+</html>

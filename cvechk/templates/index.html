@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form action="{{ url_for('results') }}" method="POST" name="inputform">
+    {{ form.hidden_tag() }}
+    Select OS to check: {{ form.uos }}
+    <p>Enter any text with CVE numbers below:</p>
+    {{ form.uinputtext(rows="48", cols="128") }}
+    <p />
+    {{ form.submit_button }}
+</form>
+
+{% endblock %}
