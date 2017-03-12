@@ -12,7 +12,10 @@ def rh_get_data(cvenum):
     r = requests.get(query)
 
     if r.status_code != 200 or not r.json:
-        return None
+        empty_data = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],
+                      'rhsa_urls': '', 'pkgs': False}
+        return empty_data
+        #return None
     else:
         return r.json()
 
@@ -29,17 +32,25 @@ def rh_get_pkgs(os, cve):
 
     cvedata = {}
 
-    rhdata = rh_get_data(cve)['affected_release']
-    for i in rhdata:
-        cve_urls.append(cve_url + cve)
-        if i['product_name'] == os_list[os]:
-            advisory = i['advisory'].replace(':', '-')
-            rhsa_urls.append(errata_url + advisory + '.html')
-            packages.append(i['package'])
+    try:
+        rhdata = rh_get_data(cve)['affected_release']
 
-            cvedata = dict(cveurls=sorted(set(cve_urls)),
-                           rhsa=sorted(set(rhsa_urls)),
-                           pkgs=sorted(set(packages)))
+        for i in rhdata:
+            cve_urls.append(cve_url + cve)
+            if i['product_name'] == os_list[os]:
+                advisory = i['advisory'].replace(':', '-')
+                rhsa_urls.append(errata_url + advisory + '.html')
+                packages.append(i['package'])
+
+                cvedata = dict(cveurls=sorted(set(cve_urls)),
+                               rhsa=sorted(set(rhsa_urls)),
+                               pkgs=sorted(set(packages)))
+
+    except:
+        invalid = rh_get_data(cve)
+        cvedata = dict(cveurls=invalid['cve_urls'],
+                       rhsa=invalid['rhsa_urls'],
+                       pkgs=invalid['pkgs'])
     redis_set_data('{}:{}'.format(os, cve), cvedata)
 
     return cvedata
