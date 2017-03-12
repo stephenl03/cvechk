@@ -12,10 +12,9 @@ def rh_get_data(cvenum):
     r = requests.get(query)
 
     if r.status_code != 200 or not r.json:
-        empty_data = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],
-                      'rhsa_urls': '', 'pkgs': False}
+        empty_data = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],  # noqa
+                      'rhsa_urls': '', 'pkgs': ''}
         return empty_data
-        #return None
     else:
         return r.json()
 
