@@ -23,7 +23,6 @@ def results():
     if app.config['ENABLE_CACHE']:
         cachedata = redis_get_data(oschoice, cves)
         if len(cachedata) > 0:
-            print(cachedata)
             return render_template('results.html', form=ResultsForm(),
                                    data=cachedata)
         else:
