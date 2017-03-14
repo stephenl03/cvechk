@@ -10,18 +10,16 @@
 
 <p><b>Red Hat Security Advisories:</b></p>
 {% for cve in data %}
-    {% for link in data[cve]['rhsa'] %}
+    {% for link in data[cve]['rhsa'] if link %}
         <a href={{ link }}>{{ link }}</a><br/>
     {% endfor %}
 {% endfor %}
 
 <p><b>Fixed packages:</b></p>
-{% for cve in data %}
-    {% if data[cve]['pkgs']|length > 0 %}
-        {% for pkg in data[cve]['pkgs'] %}
-            {{ pkg }}<br />
-        {% endfor %}
-    {% endif %}
+{% for cve in data  %}
+    {% for pkg in data[cve]['pkgs'] if pkg %}
+        {{ pkg }}<br />
+    {% endfor %}
 {% endfor %}
 
 {% endblock %}
