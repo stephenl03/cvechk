@@ -3,14 +3,18 @@
 
 <p><b>CVE Information:</b></p>
 {% for cve in data %}
-    {% for link in data[cve]['cveurls'] %}
-        <a href={{ link }}>{{ link }}</a><br/>
+    {% for link in data[cve]['cve_urls'] %}
+        {% if data[cve]['applicable'] == 'false' %}
+            <a href={{ link }}>{{ link }}</a> (not applicable)<br/>
+        {% else %}
+            <a href={{ link }}>{{ link }}</a><br/>
+        {% endif %}
     {% endfor %}
 {% endfor %}
 
 <p><b>Red Hat Security Advisories:</b></p>
 {% for cve in data %}
-    {% for link in data[cve]['rhsa'] if link %}
+    {% for link in data[cve]['rhsa_urls'] if link %}
         <a href={{ link }}>{{ link }}</a><br/>
     {% endfor %}
 {% endfor %}
