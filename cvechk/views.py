@@ -20,15 +20,11 @@ def results():
 
     cves = get_cve_text(cvetext)
 
-    try:
-        cachedata = redis_get_data(oschoice, cves)
-        if len(cachedata) > 0:
-            return render_template('results.html', form=ResultsForm(),
-                                   data=cachedata)
-        else:
-            rhdata = mod_rhel.rh_get_pkgs(oschoice, cves)
-            return render_template('results.html', form=ResultsForm(),
-                                   data=rhdata)
-
-    except:
-        return render_template('index.html', form=form_cveinput)
+    cachedata = redis_get_data(oschoice, cves)
+    if len(cachedata) > 0:
+        return render_template('results.html', form=ResultsForm(),
+                               data=cachedata)
+    else:
+        rhdata = mod_rhel.rh_get_pkgs(oschoice, cves)
+        return render_template('results.html', form=ResultsForm(),
+                               data=rhdata)
