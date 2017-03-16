@@ -33,20 +33,21 @@ def rh_get_pkgs(os, cve):
 
         for i in rhdata:
             cve_urls.append(cve_url + cve)
-            if i['product_name'] == os_list[os]:
-                advisory = i['advisory'].replace(':', '-')
-                rhsa_urls.append(errata_url + advisory + '.html')
-                packages.append(i['package'])
+            try:
+                if i['product_name'] == os_list[os]:
+                    advisory = i['advisory'].replace(':', '-')
+                    rhsa_urls.append(errata_url + advisory + '.html')
+                    packages.append(i['package'])
 
-                cvedata = dict(cveurls=sorted(set(cve_urls)),
-                               rhsa=sorted(set(rhsa_urls)),
-                               pkgs=sorted(set(packages)))
+                    cvedata = dict(cve_urls=sorted(set(cve_urls)),
+                                   rhsa_urls=sorted(set(rhsa_urls)),
+                                   pkgs=sorted(set(packages)))
+            except:
+                raise KeyError
 
     except:
-        invalid = rh_get_data(cve)
-        cvedata = dict(cveurls=invalid['cve_urls'],
-                       rhsa=invalid['rhsa_urls'],
-                       pkgs=invalid['pkgs'])
+        cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
+                   'rhsa_urls': '', 'pkgs': '', 'applicable': 'false'}
     redis_set_data('{}:{}'.format(os, cve), cvedata)
 
     return cvedata
