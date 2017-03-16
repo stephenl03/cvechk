@@ -1,9 +1,6 @@
-from cvechk import app
 from cvechk.utils import redis_set_data
 
 import requests
-
-enable_cache = app.config['ENABLE_CACHE']
 
 
 def rh_get_data(cvenum):
@@ -12,7 +9,9 @@ def rh_get_data(cvenum):
     r = requests.get(query)
 
     if r.status_code != 200 or not r.json:
-        return None
+        empty_data = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],  # noqa
+                      'rhsa_urls': '', 'pkgs': ''}
+        return empty_data
     else:
         return r.json()
 
@@ -29,17 +28,26 @@ def rh_get_pkgs(os, cve):
 
     cvedata = {}
 
-    rhdata = rh_get_data(cve)['affected_release']
-    for i in rhdata:
-        cve_urls.append(cve_url + cve)
-        if i['product_name'] == os_list[os]:
-            advisory = i['advisory'].replace(':', '-')
-            rhsa_urls.append(errata_url + advisory + '.html')
-            packages.append(i['package'])
+    try:
+        rhdata = rh_get_data(cve)['affected_release']
 
-            cvedata = dict(cveurls=sorted(set(cve_urls)),
-                           rhsa=sorted(set(rhsa_urls)),
-                           pkgs=sorted(set(packages)))
+        for i in rhdata:
+            cve_urls.append(cve_url + cve)
+            try:
+                if i['product_name'] == os_list[os]:
+                    advisory = i['advisory'].replace(':', '-')
+                    rhsa_urls.append(errata_url + advisory + '.html')
+                    packages.append(i['package'])
+
+                    cvedata = dict(cve_urls=sorted(set(cve_urls)),
+                                   rhsa_urls=sorted(set(rhsa_urls)),
+                                   pkgs=sorted(set(packages)))
+            except:
+                raise KeyError
+
+    except:
+        cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
+                   'rhsa_urls': '', 'pkgs': '', 'applicable': 'false'}
     redis_set_data('{}:{}'.format(os, cve), cvedata)
 
     return cvedata
