@@ -12,7 +12,7 @@ redis_db = app.config['REDISDB']
 
 
 def get_cve_text(intext):
-    cve_pattern = re.compile(r'CVE-[0-9]{4}-[0-9]{4,5}')
+    cve_pattern = re.compile(r'CVE-[0-9]{4}-[0-9]{4,}')
     return cve_pattern.findall(intext)
 
 
