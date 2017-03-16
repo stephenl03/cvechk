@@ -1,9 +1,6 @@
-from cvechk import app
 from cvechk.utils import redis_set_data
 
 import requests
-
-enable_cache = app.config['ENABLE_CACHE']
 
 
 def rh_get_data(cvenum):

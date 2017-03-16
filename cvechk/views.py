@@ -20,7 +20,7 @@ def results():
 
     cves = get_cve_text(cvetext)
 
-    if app.config['ENABLE_CACHE']:
+    try:
         cachedata = redis_get_data(oschoice, cves)
         if len(cachedata) > 0:
             return render_template('results.html', form=ResultsForm(),
@@ -30,9 +30,5 @@ def results():
             return render_template('results.html', form=ResultsForm(),
                                    data=rhdata)
 
-    elif oschoice.startswith('rhel'):
-        rhdata = mod_rhel.rh_get_pkgs(oschoice, cves)
-
-        return render_template('results.html', form=ResultsForm(), data=rhdata)
-    else:
+    except:
         return render_template('index.html', form=form_cveinput)
