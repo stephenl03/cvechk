@@ -1,5 +1,3 @@
-ENABLE_CACHE = True
-
 REDISDB = 0
 REDISHOST = ''
 REDISPORT = ''
