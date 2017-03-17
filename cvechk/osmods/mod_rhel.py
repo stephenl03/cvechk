@@ -17,8 +17,8 @@ def rh_get_data(cvenum):
 
 
 def rh_get_pkgs(os, cve):
-    os_list = {'rhel6': 'Red Hat Enterprise Linux 6',
-               'rhel7': 'Red Hat Enterprise Linux 7'}
+    os_list = {'RHEL 6': 'Red Hat Enterprise Linux 6',
+               'RHEL 7': 'Red Hat Enterprise Linux 7'}
     cve_urls = []
     rhsa_urls = []
     packages = []

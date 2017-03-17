@@ -1,6 +1,8 @@
 {% extends "base.html" %}
 {% block content %}
 
+<p><b>Selected OS:</b> {{ os }}</p>
+
 <p><b>CVE Information:</b></p>
 {% for cve in data %}
     {% for link in data[cve]['cve_urls'] %}
