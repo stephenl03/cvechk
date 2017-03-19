@@ -6,7 +6,7 @@
 <p><b>CVE Information:</b></p>
 {% for cve in data %}
     {% for link in data[cve]['cve_urls'] %}
-        {% if data[cve]['applicable'] == 'false' %}
+        {% if data[cve]['applicable'] == 'False' or not data[cve]['applicable'] %}
             <a href={{ link }}>{{ link }}</a> (not applicable)<br/>
         {% else %}
             <a href={{ link }}>{{ link }}</a><br/>

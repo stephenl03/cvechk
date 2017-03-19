@@ -42,12 +42,13 @@ def rh_get_pkgs(os, cve):
                     cvedata = dict(cve_urls=sorted(set(cve_urls)),
                                    rhsa_urls=sorted(set(rhsa_urls)),
                                    pkgs=sorted(set(packages)))
+                    cvedata['applicable'] = True;
             except:
                 raise KeyError
 
     except:
         cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
-                   'rhsa_urls': '', 'pkgs': '', 'applicable': 'false'}
+                   'rhsa_urls': '', 'pkgs': '', 'applicable': False}
     redis_set_data('{}:{}'.format(os, cve), cvedata)
 
     return cvedata
