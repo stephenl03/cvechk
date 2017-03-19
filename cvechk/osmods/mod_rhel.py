@@ -42,12 +42,12 @@ def rh_get_pkgs(os, cve):
                     cvedata = dict(cve_urls=sorted(set(cve_urls)),
                                    rhsa_urls=sorted(set(rhsa_urls)),
                                    pkgs=sorted(set(packages)))
-                    cvedata['applicable'] = True;
+                    cvedata['applicable'] = True
             except:
                 raise KeyError
 
     except KeyError:
-        r = requests.get('https://access.redhat.com/security/cve/{}'.format(cve))
+        r = requests.get('https://access.redhat.com/security/cve/{}'.format(cve))  # noqa
         if r.status_code == 404:
             cvedata = {'cve_urls': ['https://cve.mitre.org/cgi-bin/cvename.cgi?name={}'.format(cve)],  # noqa
                        'rhsa_urls': '', 'pkgs': '', 'applicable': False}
