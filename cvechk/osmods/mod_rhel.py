@@ -10,7 +10,7 @@ def rh_get_data(cvenum):
 
     if r.status_code != 200 or not r.json:
         empty_data = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],  # noqa
-                      'rhsa_urls': '', 'pkgs': ''}
+                      'rhsa_urls': '', 'pkgs': '', 'applicable': False}
         return empty_data
     else:
         return r.json()
@@ -46,9 +46,14 @@ def rh_get_pkgs(os, cve):
             except:
                 raise KeyError
 
-    except:
-        cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
-                   'rhsa_urls': '', 'pkgs': '', 'applicable': False}
+    except KeyError:
+        r = requests.get('https://access.redhat.com/security/cve/{}'.format(cve))
+        if r.status_code == 404:
+            cvedata = {'cve_urls': ['https://cve.mitre.org/cgi-bin/cvename.cgi?name={}'.format(cve)],  # noqa
+                       'rhsa_urls': '', 'pkgs': '', 'applicable': False}
+        else:
+            cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
+                       'rhsa_urls': '', 'pkgs': '', 'applicable': False}
     redis_set_data('cvechk:{}:{}'.format(os, cve), cvedata)
 
     return cvedata
