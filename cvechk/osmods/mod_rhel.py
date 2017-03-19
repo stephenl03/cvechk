@@ -10,15 +10,15 @@ def rh_get_data(cvenum):
 
     if r.status_code != 200 or not r.json:
         empty_data = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],  # noqa
-                      'rhsa_urls': '', 'pkgs': ''}
+                      'rhsa_urls': '', 'pkgs': '', 'applicable': False}
         return empty_data
     else:
         return r.json()
 
 
 def rh_get_pkgs(os, cve):
-    os_list = {'rhel6': 'Red Hat Enterprise Linux 6',
-               'rhel7': 'Red Hat Enterprise Linux 7'}
+    os_list = {'RHEL_6': 'Red Hat Enterprise Linux 6',
+               'RHEL_7': 'Red Hat Enterprise Linux 7'}
     cve_urls = []
     rhsa_urls = []
     packages = []
@@ -42,12 +42,18 @@ def rh_get_pkgs(os, cve):
                     cvedata = dict(cve_urls=sorted(set(cve_urls)),
                                    rhsa_urls=sorted(set(rhsa_urls)),
                                    pkgs=sorted(set(packages)))
+                    cvedata['applicable'] = True
             except:
                 raise KeyError
 
-    except:
-        cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
-                   'rhsa_urls': '', 'pkgs': '', 'applicable': 'false'}
-    redis_set_data('{}:{}'.format(os, cve), cvedata)
+    except KeyError:
+        r = requests.get('https://access.redhat.com/security/cve/{}'.format(cve))  # noqa
+        if r.status_code == 404:
+            cvedata = {'cve_urls': ['https://cve.mitre.org/cgi-bin/cvename.cgi?name={}'.format(cve)],  # noqa
+                       'rhsa_urls': '', 'pkgs': '', 'applicable': False}
+        else:
+            cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
+                       'rhsa_urls': '', 'pkgs': '', 'applicable': False}
+    redis_set_data('cvechk:{}:{}'.format(os, cve), cvedata)
 
     return cvedata

@@ -12,7 +12,7 @@ redis_db = app.config['REDISDB']
 
 
 def get_cve_text(intext):
-    cve_pattern = re.compile(r'CVE-[0-9]{4}-[0-9]{4,5}')
+    cve_pattern = re.compile(r'CVE-[0-9]{4}-[0-9]{4,}')
     return cve_pattern.findall(intext)
 
 
@@ -24,15 +24,16 @@ def redis_get_data(os, cvelist):
     extra = []
 
     for cve in cvelist:
-        cached = redis_conn.hgetall(os + ':' + cve)
+        cached = redis_conn.hgetall('cvechk:{}:{}'.format(os, cve))
         if len(cached) > 0:
             cvedata[cve] = {'cve_urls': [u.strip("['] ") for u in cached['cve_urls'].split(',')],  # noqa
                             'pkgs': [p.strip("['] ") for p in cached['pkgs'].split(',')],  # noqa
-                            'rhsa_urls': [r.strip("['] ") for r in cached['rhsa_urls'].split(',')]}  # noqa
+                            'rhsa_urls': [r.strip("['] ") for r in cached['rhsa_urls'].split(',')],  # noqa
+                            'applicable': cached['applicable']}
+        else:
+            cvedata[cve] = mod_rhel.rh_get_pkgs(os, cve)
     extra = [x for x in cvelist if x not in cvedata.keys()]
     for cve in extra:
-        cvedata[cve] = mod_rhel.rh_get_pkgs(os, cve)
-    else:
         cvedata[cve] = mod_rhel.rh_get_pkgs(os, cve)
 
     return cvedata
