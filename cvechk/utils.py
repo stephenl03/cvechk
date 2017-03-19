@@ -24,7 +24,7 @@ def redis_get_data(os, cvelist):
     extra = []
 
     for cve in cvelist:
-        cached = redis_conn.hgetall(os + ':' + cve)
+        cached = redis_conn.hgetall('cvechk:{}:{}'.format(os, cve))
         if len(cached) > 0:
             cvedata[cve] = {'cve_urls': [u.strip("['] ") for u in cached['cve_urls'].split(',')],  # noqa
                             'pkgs': [p.strip("['] ") for p in cached['pkgs'].split(',')],  # noqa

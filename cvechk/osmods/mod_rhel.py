@@ -17,8 +17,8 @@ def rh_get_data(cvenum):
 
 
 def rh_get_pkgs(os, cve):
-    os_list = {'RHEL 6': 'Red Hat Enterprise Linux 6',
-               'RHEL 7': 'Red Hat Enterprise Linux 7'}
+    os_list = {'RHEL_6': 'Red Hat Enterprise Linux 6',
+               'RHEL_7': 'Red Hat Enterprise Linux 7'}
     cve_urls = []
     rhsa_urls = []
     packages = []
@@ -49,6 +49,6 @@ def rh_get_pkgs(os, cve):
     except:
         cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
                    'rhsa_urls': '', 'pkgs': '', 'applicable': False}
-    redis_set_data('{}:{}'.format(os, cve), cvedata)
+    redis_set_data('cvechk:{}:{}'.format(os, cve), cvedata)
 
     return cvedata

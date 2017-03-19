@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% block content %}
 
-<p><b>Selected OS:</b> {{ os }}</p>
+<p><b>Selected OS:</b> {{ os.replace('_', ' ') }}</p>
 
 <p><b>CVE Information:</b></p>
 {% for cve in data %}
