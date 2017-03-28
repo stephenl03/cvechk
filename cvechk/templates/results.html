@@ -1,29 +1,32 @@
 {% extends "base.html" %}
 {% block content %}
 
+<p>All information provided below is for reference purposes only, and is provided by vendor API and documentation.<br/>
+Author assumes no responisbility nor guarantees they meet any specific compliance requirement, please consult with your auditor for additional information.<br/></p>
+
 <p><b>Selected OS:</b> {{ os.replace('_', ' ') }}</p>
 
 <p><b>CVE Information:</b></p>
 {% for cve in data %}
-    {% for link in data[cve]['cve_urls'] %}
-        {% if data[cve]['applicable'] == 'False' or not data[cve]['applicable'] %}
-            <a href={{ link }}>{{ link }}</a> (not applicable)<br/>
+    {% for link in data[cve]['cveurls'] %}
+        {% if data[cve]['state'] %}
+        <a href={{ link }}>{{ link }}</a> ({{ data[cve]['state'] }})<br/>
         {% else %}
-            <a href={{ link }}>{{ link }}</a><br/>
+        <a href={{ link }}>{{ link }}</a><br/>
         {% endif %}
     {% endfor %}
 {% endfor %}
 
 <p><b>Red Hat Security Advisories:</b></p>
 {% for cve in data %}
-    {% for link in data[cve]['rhsa_urls'] if link %}
+    {% for link in data[cve]['rhsaurls'] if link %}
         <a href={{ link }}>{{ link }}</a><br/>
     {% endfor %}
 {% endfor %}
 
 <p><b>Fixed packages:</b></p>
 {% for cve in data  %}
-    {% for pkg in data[cve]['pkgs'] if pkg %}
+    {% for pkg in data[cve]['pkgs'] if '-' in pkg %}
         {{ pkg }}<br />
     {% endfor %}
 {% endfor %}

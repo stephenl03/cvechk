@@ -3,20 +3,19 @@ from cvechk.utils import redis_set_data
 import requests
 
 
-def rh_get_data(cvenum):
+def rh_api_data(cvenum):
     query = 'https://access.redhat.com/labs/securitydataapi/cve/{}.json'.format(cvenum)  # noqa
 
     r = requests.get(query)
 
     if r.status_code != 200 or not r.json:
-        empty_data = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],  # noqa
-                      'rhsa_urls': '', 'pkgs': '', 'applicable': False}
-        return empty_data
+        return   {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],  # noqa
+                  'state': 'Not applicable'}
     else:
         return r.json()
 
 
-def rh_get_pkgs(os, cve):
+def rh_get_data(os, cve):
     os_list = {'RHEL_6': 'Red Hat Enterprise Linux 6',
                'RHEL_7': 'Red Hat Enterprise Linux 7'}
     cve_urls = []
@@ -28,32 +27,42 @@ def rh_get_pkgs(os, cve):
 
     cvedata = {}
 
+    rhdata = rh_api_data(cve)
+
     try:
-        rhdata = rh_get_data(cve)['affected_release']
+        cve_urls.append(cve_url + cve)
+        for ar in rhdata['affected_release']:
+            if ar['product_name'] == os_list[os]:
+                advisory = ar['advisory'].replace(':', '-')
+                rhsa_urls.append('{0}{1}.html'.format(errata_url, advisory))
+                packages.append(ar['package'])
 
-        for i in rhdata:
-            cve_urls.append(cve_url + cve)
-            try:
-                if i['product_name'] == os_list[os]:
-                    advisory = i['advisory'].replace(':', '-')
-                    rhsa_urls.append(errata_url + advisory + '.html')
-                    packages.append(i['package'])
-
-                    cvedata = dict(cve_urls=sorted(set(cve_urls)),
-                                   rhsa_urls=sorted(set(rhsa_urls)),
-                                   pkgs=sorted(set(packages)))
-                    cvedata['applicable'] = True
-            except:
-                raise KeyError
-
+                cvedata = dict(cveurls=cve_urls, rhsaurls=rhsa_urls,
+                               pkgs=packages)
+                cvedata['state'] = 'Affected'
+                break
     except KeyError:
-        r = requests.get('https://access.redhat.com/security/cve/{}'.format(cve))  # noqa
-        if r.status_code == 404:
-            cvedata = {'cve_urls': ['https://cve.mitre.org/cgi-bin/cvename.cgi?name={}'.format(cve)],  # noqa
-                       'rhsa_urls': '', 'pkgs': '', 'applicable': False}
-        else:
-            cvedata = {'cve_urls': ['https://access.redhat.com/security/cve/{}'.format(cve)],  # noqa
-                       'rhsa_urls': '', 'pkgs': '', 'applicable': False}
-    redis_set_data('cvechk:{}:{}'.format(os, cve), cvedata)
+        try:
+            for ar in rhdata['package_state']:
+                if ar['product_name'] == os_list[os]:
+                    cvedata = dict(cveurls=cve_urls)
+                    cvedata['state'] = ar['fix_state']
+                    break
+        except KeyError:
+            r = requests.get('https://access.redhat.com/security/cve/{}'.format(cve))  # noqa
+            if r.status_code == 404:
+                cvedata = {'cveurls': ['https://cve.mitre.org/cgi-bin/cvename.cgi?name={}'.format(cve)],  # noqa
+                           'state': 'Not found in Red Hat database'}
+            else:
+                cvedata = {'cveurls': ['https://access.redhat.com/security/cve/{}'.format(cve)]}  # noqa
+        except Exception as e:
+            print(e)
+    except Exception as e:
+        print(e)
+
+    try:
+        redis_set_data('cvechk:{0}:{1}'.format(os, cve), cvedata)
+    except:
+        pass
 
     return cvedata

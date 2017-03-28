@@ -26,16 +26,20 @@ def redis_get_data(os, cvelist):
     for cve in cvelist:
         cached = redis_conn.hgetall('cvechk:{}:{}'.format(os, cve))
         if len(cached) > 0:
-            cvedata[cve] = {'cve_urls': [u.strip("['] ") for u in cached['cve_urls'].split(',')],  # noqa
-                            'pkgs': [p.strip("['] ") for p in cached['pkgs'].split(',')],  # noqa
-                            'rhsa_urls': [r.strip("['] ") for r in cached['rhsa_urls'].split(',')],  # noqa
-                            'applicable': cached['applicable']}
+            try:
+                cvedata[cve] = {'cveurls': [u.strip("['] ") for u in cached['cveurls'].split(',')],  # noqa
+                                'pkgs': [p.strip("['] ") for p in cached['pkgs'].split(',')],  # noqa
+                                'rhsaurls': [r.strip("['] ") for r in cached['rhsaurls'].split(',')],  # noqa
+                                'state': cached['state']}
+            except KeyError:
+                cvedata[cve] = {'cveurls': [u.strip("['] ") for u in cached['cveurls'].split(',')],  # noqa
+                                'state': cached['state']}
         else:
-            cvedata[cve] = mod_rhel.rh_get_pkgs(os, cve)
+            cvedata[cve] = mod_rhel.rh_get_data(os, cve)
     extra = [x for x in cvelist if x not in cvedata.keys()]
     for cve in extra:
-        cvedata[cve] = mod_rhel.rh_get_pkgs(os, cve)
-
+        cvedata[cve] = mod_rhel.rh_get_data(os, cve)
+    redis_set_data('cvechk:{0}:{1}'.format(os, cve), cvedata)
     return cvedata
 
 
