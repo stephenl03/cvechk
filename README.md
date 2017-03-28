@@ -1,4 +1,4 @@
-## cvechk.net
+# cvechk
 Source for the site [cvechk.net](https://cvechk.net).
 
 ### Description
