@@ -5,7 +5,7 @@
     {{ form.hidden_tag() }}
     Select OS to check: {{ form.uos }}
     <p>Enter any text with CVE numbers below:</p>
-    {{ form.uinputtext(rows="32", cols="128") }}
+    {{ form.uinputtext(rows="32", cols="128", placeholder="Enter any text containing CVE numbers here") }}
     <p />
     {{ form.submit_button }}
 </form>
