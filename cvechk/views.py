@@ -15,18 +15,14 @@ def display_index():
 def results():
     form_cveinput = CVEInputForm()
 
-    if form_cveinput.validate_on_submit():
-        oschoice = form_cveinput.uos.data
-        cvetext = form_cveinput.uinputtext.data.strip()
+    oschoice = form_cveinput.uos.data
+    cvetext = form_cveinput.uinputtext.data.strip()
 
-        cves = get_cve_text(cvetext)
+    cves = get_cve_text(cvetext)
 
-        data = redis_get_data(oschoice, cves)
-        if not len(data) > 0:
-            data = mod_rhel.rh_get_data(oschoice, cves)
+    data = redis_get_data(oschoice, cves)
+    if not len(data) > 0:
+        data = mod_rhel.rh_get_data(oschoice, cves)
 
-        return render_template('results.html', form=ResultsForm(),
-                               data=data, os=oschoice)
-
-    else:
-        return render_template('index.html', form=CVEInputForm())
+    return render_template('results.html', form=ResultsForm(),
+                           data=data, os=oschoice)
