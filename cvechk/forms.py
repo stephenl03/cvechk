@@ -1,5 +1,6 @@
 from flask_wtf import FlaskForm
 from wtforms import SelectField, SubmitField, TextAreaField
+from wtforms.validators import DataRequired
 
 
 def os_choices():
@@ -10,7 +11,7 @@ def os_choices():
 
 class CVEInputForm(FlaskForm):
     uos = SelectField(coerce=str, choices=os_choices())
-    uinputtext = TextAreaField()
+    uinputtext = TextAreaField(validators=[DataRequired()])
     submit_button = SubmitField('Submit')
 
 
