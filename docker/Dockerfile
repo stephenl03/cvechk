@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y git  && \
     apt-get -y autoremove && apt-get clean
 
 WORKDIR /opt/cvechk
-RUN git clone https://github.com/evitalis/cvechk.git -b dev /opt/cvechk && \
+RUN git clone https://github.com/evitalis/cvechk.git /opt/cvechk && \
     pip install -r requirements.txt
 
 RUN sed -i -e "s/127.0.0.1/redis/" config.py
