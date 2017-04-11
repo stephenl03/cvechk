@@ -20,7 +20,6 @@ def results():
         cvetext = form_cveinput.uinputtext.data.strip()
 
         cves = get_cve_text(cvetext)
-        print(len(cves))
 
         data = redis_get_data(oschoice, cves)
         if not len(data) > 0:
