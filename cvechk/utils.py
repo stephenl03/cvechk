@@ -18,7 +18,8 @@ def get_cve_text(intext):
 
 def redis_get_data(os, cvelist):
     redis_conn = redis.StrictRedis(host=redis_host, port=redis_port,
-                                   db=redis_db, decode_responses=True)
+                                   password=redis_pass, db=redis_db,
+                                   decode_responses=True)
 
     cvedata = {}
     extra = []
@@ -45,5 +46,6 @@ def redis_get_data(os, cvelist):
 
 def redis_set_data(key, cvedata):
     redis_conn = redis.StrictRedis(host=redis_host, port=redis_port,
-                                   db=redis_db)
+                                   password=redis_pass, db=redis_db)
     redis_conn.hmset(key, cvedata)
+    redis_conn.expire(key, 28800)
