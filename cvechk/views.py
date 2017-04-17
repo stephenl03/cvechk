@@ -22,7 +22,7 @@ def results():
         cves = get_cve_text(cvetext)
 
         data = redis_get_data(oschoice, cves)
-        if not len(data) > 0:
+        if not data:
             data = mod_rhel.rh_get_data(oschoice, cves)
 
         return render_template('results.html', form=ResultsForm(),
