@@ -8,9 +8,13 @@
     {{ form.uinputtext(rows="32", cols="128", placeholder="Enter any text containing CVE numbers here") }}
     <p />
     {{ form.submit_button }}
-    {% for message in get_flashed_messages() %}
-        <span style="color: red;">{{ message }}</span>
-    {% endfor %}
 </form>
+{% with messages = get_flashed_messages() %}
+    {% if messages %}
+        {% for message in messages %}
+            <span style="color: red;">{{ message }}</span>
+        {% endfor %}
+    {% endif %}
+{% endwith %}
 
 {% endblock %}
