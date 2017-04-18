@@ -18,8 +18,8 @@ def rh_api_data(cvenum):
 def rh_get_data(os, cve):
     """ Utilize Red Hat API to get specific data on provided CVE. """
 
-    os_list = {'RHEL_6': 'Red Hat Enterprise Linux 6',
-               'RHEL_7': 'Red Hat Enterprise Linux 7'}
+    os_list = {'EL_6': 'Red Hat Enterprise Linux 6',
+               'EL_7': 'Red Hat Enterprise Linux 7'}
     cve_urls = []
     rhsa_urls = []
     packages = []
