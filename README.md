@@ -9,6 +9,8 @@ Only the newest versions of Python and infrastructure services are supported. Ol
 
 The recommended server applications are nginx and gunicorn on operating systems utilizing systemd.
 
+No information will provided for operating systems which are end of life per the respective vendor. This is in an effort to recommend a modern security posture from the operating system level.
+
 ### Available Operating System Lookup
 The following operating systems are currently available for data reporting.
 Additional operating systems will be added in future releases.
