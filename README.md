@@ -5,7 +5,7 @@ Source for the site [cvechk.net](https://cvechk.net).
 A simple and consolidated method for checking vendor API data for CVE information. This site is built strictly with Python using the flask framework, no JavaScript is used. Data returned is a list of vendor CVE links along with versions of packages which fix the applicable issues.
 
 ### Supported Application/Server Configuration
-Only the newest versions of Python and infrastructure services are supported. Older Python releases may not allow the code to work as expected.
+Only Python 3.6 is supported at this time, older releases may not work as expected and are considered unsupported.
 
 The recommended server applications are nginx and gunicorn on operating systems utilizing systemd.
 
