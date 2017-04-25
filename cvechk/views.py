@@ -1,4 +1,5 @@
-from flask import flash, render_template, redirect, url_for
+from flask import flash, render_template, redirect, url_for, request, \
+                  jsonify
 
 from cvechk import app
 from cvechk.forms import CVEInputForm, ResultsForm
@@ -30,3 +31,16 @@ def results():
     else:
         flash('No data entered, please enter some data in the field above.')
         return redirect(url_for('display_index'))
+
+
+@app.route('/', subdomain='api', methods=['GET'])
+def api_cvelist():
+    data = {}
+    cves = get_cve_text(request.args['cvelist'])
+    os = request.args['os']
+
+    data = redis_get_data(os, cves)
+    if not data:
+        data = mod_rhel.rh_get_data(os, cves)
+
+    return jsonify(data)
