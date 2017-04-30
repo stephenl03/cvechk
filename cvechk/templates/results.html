@@ -17,12 +17,14 @@ Author assumes no responisbility nor guarantees they meet any specific complianc
     {% endfor %}
 {% endfor %}
 
+{% if os.startswith('EL') %}
 <p><b>Red Hat Security Advisories:</b></p>
 {% for cve in data %}
     {% for link in data[cve]['rhsaurls'] if link %}
         <a href={{ link }}>{{ link }}</a><br/>
     {% endfor %}
 {% endfor %}
+{% endif %}
 
 <p><b>Fixed packages:</b></p>
 {% for cve in data  %}
