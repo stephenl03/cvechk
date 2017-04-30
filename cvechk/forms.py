@@ -4,8 +4,8 @@ from wtforms.validators import DataRequired, Length
 
 
 def os_choices():
-    oslist = [("EL_6", "EL 6"),
-              ("EL_7", "EL 7")]
+    oslist = [("EL_6", "Enterprise Linux 6"),
+              ("EL_7", "Enterprise Linux 7")]
     return oslist
 
 
