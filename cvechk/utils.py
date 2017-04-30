@@ -38,12 +38,12 @@ def redis_get_data(os, cvelist):
         cached = redis_conn.hgetall('cvechk:{}:{}'.format(os, cve))
         if len(cached) > 0:
             try:
-                cvedata[cve] = {'cveurls': [u.strip("['] ") for u in cached['cveurls'].split(',')],  # noqa
-                                'pkgs': [p.strip("['] ") for p in cached['pkgs'].split(',')],  # noqa
-                                'rhsaurls': [r.strip("['] ") for r in cached['rhsaurls'].split(',')],  # noqa
+                cvedata[cve] = {'cveurl': cached['cveurl'],
+                                'pkg': cached['pkg'],
+                                'rhsaurl': cached['rhsaurl'],
                                 'state': cached['state']}
             except KeyError:
-                cvedata[cve] = {'cveurls': [u.strip("['] ") for u in cached['cveurls'].split(',')],  # noqa
+                cvedata[cve] = {'cveurl': cached['cveurl'],
                                 'state': cached['state']}
         else:
             cvedata[cve] = mod_rhel.rh_get_data(os, cve)
@@ -63,9 +63,12 @@ def redis_set_data(key, cvedata):
     including URLS and package informaton if available.
     """
 
-    redis_conn = redis.StrictRedis(host=redis_host, port=redis_port,
-                                   password=redis_pass, db=redis_db)
-    redis_conn.hmset(key, cvedata)
+    try:
+        redis_conn = redis.StrictRedis(host=redis_host, port=redis_port,
+                                       password=redis_pass, db=redis_db)
+        redis_conn.hmset(key, cvedata)
 
-    ''' Expire keys after 8 hours to ensure any updates are obtained. '''
-    redis_conn.expire(key, 28800)
+        ''' Expire keys after 8 hours to ensure any updates are obtained. '''
+        redis_conn.expire(key, 28800)
+    except:
+        pass
