@@ -4,12 +4,12 @@ import requests
 
 
 def rh_api_data(cvenum):
-    query = 'https://access.redhat.com/labs/securitydataapi/cve/{}.json'.format(cvenum)  # noqa
+    query = f'https://access.redhat.com/labs/securitydataapi/cve/{cvenum}.json'
 
     r = requests.get(query)
 
     if r.status_code != 200 or not r.json:
-        return   {'cve_url': ['https://access.redhat.com/security/cve/{}'.format(cvenum)],  # noqa
+        return   {'cve_url': f'https://access.redhat.com/security/cve/{cvenum}',  # noqa
                   'state': 'Not applicable'}
     else:
         return r.json()
