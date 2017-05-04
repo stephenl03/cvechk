@@ -47,7 +47,7 @@ def rh_get_data(os, cve):
         try:
             for ar in rhdata['package_state']:
                 if ar['product_name'] == os_list[os]:
-                    cvedata = dict(cveurl=cve_url)
+                    cvedata = dict(cveurl=cve_url + cve)
                     cvedata['state'] = ar['fix_state']
                     break
         except KeyError:
