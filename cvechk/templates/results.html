@@ -8,23 +8,29 @@ Author assumes no responisbility nor guarantees they meet any specific complianc
 
 <p><b>CVE Information:</b></p>
 {% for cve in data %}
+{% if data[cve]['cveurl'] %}
     {% if data[cve]['state'] %}
         <a href={{ data[cve]['cveurl'] }}>{{ data[cve]['cveurl'] }}</a> ({{ data[cve]['state'] }})<br/>
     {% else %}
         <a href={{ data[cve]['cveurl'] }}>{{ data[cve]['cveurl'] }}</a><br/>
     {% endif %}
+{% endif %}
 {% endfor %}
 
 {% if os.startswith('EL') %}
 <p><b>Red Hat Security Advisories:</b></p>
 {% for cve in data %}
+{% if data[cve]['rhsaurl'] %}
     <a href={{ data[cve]['rhsaurl'] }}>{{ data[cve]['rhsaurl'] }}</a><br/>
+{% endif %}
 {% endfor %}
 {% endif %}
 
 <p><b>Fixed packages:</b></p>
 {% for cve in data %}
+{% if data[cve]['pkg'] %}
     {{ data[cve]['pkg'] }}<br />
+{% endif %}
 {% endfor %}
 
 {% endblock %}
