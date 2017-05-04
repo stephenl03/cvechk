@@ -9,7 +9,7 @@ def rh_api_data(cvenum):
     r = requests.get(query)
 
     if r.status_code != 200 or not r.json:
-        return   {'cve_url': f'https://access.redhat.com/security/cve/{cvenum}',  # noqa
+        return   {'cveurl': f'https://access.redhat.com/security/cve/{cvenum}',  # noqa
                   'state': 'Not applicable'}
     else:
         return r.json()
@@ -47,7 +47,7 @@ def rh_get_data(os, cve):
         try:
             for ar in rhdata['package_state']:
                 if ar['product_name'] == os_list[os]:
-                    cvedata = dict(cveurls=cve_url)
+                    cvedata = dict(cveurl=cve_url)
                     cvedata['state'] = ar['fix_state']
                     break
         except KeyError:
@@ -60,10 +60,10 @@ def rh_get_data(os, cve):
                            'state': 'Not found in Red Hat database'}
             else:
                 cvedata = {'cveurl': f'https://access.redhat.com/security/cve/{cve}'}  # noqa
-        except Exception as e:
-            print(e)
-    except Exception as e:
-        print(e)
+        except:
+            pass
+    except:
+        pass
 
     redis_set_data('cvechk:{0}:{1}'.format(os, cve), cvedata)
 
