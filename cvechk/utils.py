@@ -1,6 +1,7 @@
 from cvechk import app
 from cvechk.osmods import mod_rhel
 
+import logging
 import re
 import redis
 
@@ -9,6 +10,8 @@ redis_host = app.config['REDISHOST']
 redis_port = app.config['REDISPORT']
 redis_pass = app.config['REDISPASS']
 redis_db = app.config['REDISDB']
+
+utillogger = logging.getLogger('cvelogger.utils')
 
 
 def get_cve_text(intext):
@@ -71,4 +74,5 @@ def redis_set_data(key, cvedata):
         ''' Expire keys after 8 hours to ensure any updates are obtained. '''
         redis_conn.expire(key, 28800)
     except:
+        utillogger.exception(f'Unable to cache data for {key}')
         pass

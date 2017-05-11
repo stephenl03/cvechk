@@ -1,10 +1,14 @@
 from flask import flash, render_template, redirect, url_for, request, \
                   jsonify
 
+import logging
+
 from cvechk import app
 from cvechk.forms import CVEInputForm, ResultsForm
 from cvechk.osmods import mod_rhel
 from cvechk.utils import get_cve_text, redis_get_data
+
+viewlogger = logging.getLogger('cvelogger.views')
 
 
 @app.route('/')
@@ -20,14 +24,18 @@ def show_apiinfo():
 @app.route('/results', methods=['POST'])
 def results():
     form_cveinput = CVEInputForm()
+    data = {}
 
     if form_cveinput.validate_on_submit():
         oschoice = form_cveinput.uos.data
         cvetext = form_cveinput.uinputtext.data.strip()
 
         cves = get_cve_text(cvetext)
+        try:
+            data = redis_get_data(oschoice, cves)
+        except:
+            viewlogger.exception('Unable to connect to Redis instance')
 
-        data = redis_get_data(oschoice, cves)
         if not data:
             data = mod_rhel.rh_get_data(oschoice, cves)
 
@@ -45,7 +53,11 @@ def api_cvelist():
     os = request.args['os']
     oformat = request.args['format']
 
-    data = redis_get_data(os, cves)
+    try:
+        data = redis_get_data(os, cves)
+    except:
+        viewlogger.exception('Unable to connect to Redis instance')
+
     if not data:
         data = mod_rhel.rh_get_data(os, cves)
 

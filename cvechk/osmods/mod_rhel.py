@@ -1,6 +1,9 @@
 from cvechk.utils import redis_set_data
 
+import logging
 import requests
+
+rhellogger = logging.getLogger('cvelogger.mod_rhel')
 
 
 def rh_api_data(cvenum):
@@ -44,6 +47,7 @@ def rh_get_data(os, cve):
                 cvedata['state'] = 'Affected'
                 break
     except KeyError:
+        rhellogger.warning(f'No affected_release data for {os} {cve}')
         try:
             for ar in rhdata['package_state']:
                 if ar['product_name'] == os_list[os]:
@@ -54,6 +58,8 @@ def rh_get_data(os, cve):
             ''' If CVE is not found check for a valid URL anyway for additional
                 information. Provide alternative link and warning if URL is not
                 valid for Red Hat operating systems. '''
+            rhellogger.warning(f'No package_state data for {os} {cve}')
+
             r = requests.get(f'https://access.redhat.com/security/cve/{cve}')
             if r.status_code == 404:
                 cvedata = {'cveurl': f'https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve}',  # noqa
@@ -61,9 +67,9 @@ def rh_get_data(os, cve):
             else:
                 cvedata = {'cveurl': f'https://access.redhat.com/security/cve/{cve}'}  # noqa
         except:
-            pass
+            rhellogger.exception('Uncaught exception has occurred')
     except:
-        pass
+        rhellogger.exception('Uncaught exception has occurred')
 
     redis_set_data('cvechk:{0}:{1}'.format(os, cve), cvedata)
 
