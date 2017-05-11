@@ -7,7 +7,7 @@ app = Flask(__name__)
 app.config.from_object('config')
 
 logdir = './logs'
-logfile = logdir + 'cvechk.log'
+logfile = os.path.join(logdir, 'cvechk.log') 
 
 if not os.path.exists(logdir):
     os.mkdir(logdir)
