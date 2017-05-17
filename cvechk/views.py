@@ -37,7 +37,8 @@ def results():
             viewlogger.exception('Unable to connect to Redis instance')
 
         if not data:
-            data = mod_rhel.rh_get_data(oschoice, cves)
+            for cve in cves:
+                data = mod_rhel.rh_get_data(oschoice, cve)
 
         return render_template('results.html', form=ResultsForm(),
                                data=data, os=oschoice)
