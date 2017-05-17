@@ -66,13 +66,10 @@ def redis_set_data(key, cvedata):
     including URLS and package informaton if available.
     """
 
-    try:
+    if cvedata:
         redis_conn = redis.StrictRedis(host=redis_host, port=redis_port,
                                        password=redis_pass, db=redis_db)
         redis_conn.hmset(key, cvedata)
 
         ''' Expire keys after 8 hours to ensure any updates are obtained. '''
         redis_conn.expire(key, 28800)
-    except:
-        utillogger.exception(f'Unable to cache data for {key}')
-        pass
