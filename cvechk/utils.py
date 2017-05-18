@@ -51,7 +51,7 @@ def redis_get_data(os, cvelist):
         else:
             cvedata[cve] = mod_rhel.rh_get_data(os, cve)
 
-    ''' Get CVE data from Red Hat API if not found in existing cache data. '''
+    # Get CVE data from Red Hat API if not found in existing cache data.
     extra = [x for x in cvelist if x not in cvedata.keys()]
     for cve in extra:
         cvedata[cve] = mod_rhel.rh_get_data(os, cve)
@@ -67,9 +67,12 @@ def redis_set_data(key, cvedata):
     """
 
     if cvedata:
-        redis_conn = redis.StrictRedis(host=redis_host, port=redis_port,
-                                       password=redis_pass, db=redis_db)
-        redis_conn.hmset(key, cvedata)
+        try:
+            redis_conn = redis.StrictRedis(host=redis_host, port=redis_port,
+                                           password=redis_pass, db=redis_db)
+            redis_conn.hmset(key, cvedata)
 
-        ''' Expire keys after 8 hours to ensure any updates are obtained. '''
-        redis_conn.expire(key, 28800)
+            # Expire keys after 8 hours.
+            redis_conn.expire(key, 28800)
+        except ConnectionError:
+            utillogger.error(f'Unable to connect to Redis at {redis_host}')
