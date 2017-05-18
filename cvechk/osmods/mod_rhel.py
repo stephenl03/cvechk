@@ -31,7 +31,7 @@ def rh_get_data(os, cve):
     if not cvedata:
         testurl = requests.get(f'https://access.redhat.com/security/cve/{cve}')
         if testurl.status_code == 404:
-            rhelloger.warning(f'{cve} data not available from Red Hat API')
+            rhellogger.warning(f'{cve} data not available from Red Hat API')
             cvedata = {'cveurl': f'https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve}',  # noqa
                        'state': 'Not found in Red Hat database'}
         else:
