@@ -38,7 +38,7 @@ def rh_get_data(os, cve):
             rhellogger.info(f'{cve} found but not applicable for {os}')
             cvedata = {'cveurl': f'https://access.redhat.com/security/cve/{cve}'} # noqa
 
-    redis_set_data('cvechk:{0}:{1}'.format(os, cve), cvedata)
+    redis_set_data(f'cvechk:{os}:{cve}', cvedata)
     return cvedata
 
 

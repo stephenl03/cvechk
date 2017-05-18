@@ -56,7 +56,7 @@ def redis_get_data(os, cvelist):
     for cve in extra:
         cvedata[cve] = mod_rhel.rh_get_data(os, cve)
 
-        redis_set_data('cvechk:{0}:{1}'.format(os, cve), cvedata)
+        redis_set_data(f'cvechk:{os}:{cve}', cvedata)
     return cvedata
 
 
