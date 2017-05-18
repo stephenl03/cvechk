@@ -1,5 +1,5 @@
-from flask import flash, render_template, redirect, url_for, request, \
-                  jsonify
+from flask import (flash, jsonify, make_response, render_template, redirect,
+                   request, url_for)
 
 import logging
 
@@ -75,4 +75,6 @@ def api_cvelist():
                 output += f'Fixed Packages: {data[cve]["pkg"]}\n\n'
                 return output
         else:
-            return jsonify(data)
+            response = make_response(jsonify(data))
+            response.headers['Content-Type'] = 'application/json'
+            return response
