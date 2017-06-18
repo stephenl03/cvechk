@@ -1,5 +1,5 @@
-from flask import flash, render_template, redirect, url_for, request, \
-                  jsonify
+from flask import (flash, jsonify, make_response, render_template, redirect,
+                   request, url_for)
 
 import logging
 
@@ -37,7 +37,8 @@ def results():
             viewlogger.exception('Unable to connect to Redis instance')
 
         if not data:
-            data = mod_rhel.rh_get_data(oschoice, cves)
+            for cve in cves:
+                data = mod_rhel.rh_get_data(oschoice, cve)
 
         return render_template('results.html', form=ResultsForm(),
                                data=data, os=oschoice)
@@ -74,4 +75,6 @@ def api_cvelist():
                 output += f'Fixed Packages: {data[cve]["pkg"]}\n\n'
                 return output
         else:
-            return jsonify(data)
+            response = make_response(jsonify(data))
+            response.headers['Content-Type'] = 'application/json'
+            return response
