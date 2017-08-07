@@ -6,10 +6,10 @@ import re
 import redis
 
 
-redis_host = app.config['REDISHOST']
-redis_port = app.config['REDISPORT']
-redis_pass = app.config['REDISPASS']
-redis_db = app.config['REDISDB']
+redis_host = app.config['REDIS_HOST']
+redis_port = app.config['REDIS_PORT']
+redis_pass = app.config['REDIS_PASS']
+redis_db = app.config['REDIS_DB']
 
 utillogger = logging.getLogger('cvelogger.utils')
 
