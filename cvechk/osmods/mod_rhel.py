@@ -76,9 +76,12 @@ def check_release_data(rhdata, cve, os):
     cve_url = 'https://access.redhat.com/security/cve/'
 
     cvedata = {}
-    for ar in rhdata['package_state']:
-        if ar['product_name'] == os_list[os]:
-            cvedata = dict(cveurl=cve_url + cve)
-            cvedata['state'] = ar['fix_state']
+    try:
+        for ar in rhdata['package_state']:
+            if ar['product_name'] == os_list[os]:
+                cvedata = dict(cveurl=cve_url + cve)
+                cvedata['state'] = ar['fix_state']
+    except KeyError:
+        rhellogger.warning(f'No updated packages found for {cve} ({os})')
 
     return cvedata
