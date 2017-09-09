@@ -16,6 +16,7 @@ The following operating systems are currently available for data reporting.
 Additional operating systems will be added in future releases.
 
 - RHEL 6/7 (including CentOS)
+- Ubuntu 14.04/16.04
 
 ### Contributing
 See CONTRIBUTING.md for the most recent contributing guidelines.
