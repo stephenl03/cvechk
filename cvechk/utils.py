@@ -17,7 +17,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 
 from cvechk import app
-from cvechk.osmods import mod_rhel
+import cvechk.osmods
 
 import logging
 import re
@@ -56,18 +56,25 @@ def redis_get_data(os, cvelist):
     extra = []
 
     for cve in cvelist:
-        cached = redis_conn.hgetall('cvechk:{}:{}'.format(os, cve))
-        if len(cached) > 0:
-            try:
+        cached = redis_conn.hgetall(f'cvechk:{os}:{cve}')
+        if os.startswith('EL_'):
+            if len(cached) > 0:
+                try:
+                    cvedata[cve] = {'cveurl': cached['cveurl'],
+                                    'pkg': cached['pkg'],
+                                    'rhsaurl': cached['rhsaurl'],
+                                    'state': cached['state']}
+                except KeyError:
+                    cvedata[cve] = {'cveurl': cached['cveurl'],
+                                    'state': cached['state']}
+            else:
+                cvedata[cve] = cvechk.osmods.mod_rhel.rh_get_data(os, cve)
+        if os.startswith('UBU_'):
+            if len(cached) > 0:
                 cvedata[cve] = {'cveurl': cached['cveurl'],
-                                'pkg': cached['pkg'],
-                                'rhsaurl': cached['rhsaurl'],
-                                'state': cached['state']}
-            except KeyError:
-                cvedata[cve] = {'cveurl': cached['cveurl'],
-                                'state': cached['state']}
-        else:
-            cvedata[cve] = mod_rhel.rh_get_data(os, cve)
+                                'pkg': cached['pkg']}
+            else:
+                cvedata[cve] = cvechk.osmods.mod_ubuntu.get_cve_data(cve, os)
 
     # Get CVE data from Red Hat API if not found in existing cache data.
     extra = [x for x in cvelist if x not in cvedata.keys()]
