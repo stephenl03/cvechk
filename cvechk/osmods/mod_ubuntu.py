@@ -39,18 +39,27 @@ def get_cve_data(cvenum, rel):
     cveurl = securl + f'cve/{cveyear}/{cvenum}.html'
 
     cvedata = {}
+    cvedata['cveurl'] = cveurl
+    cvedata['state'] = 'Not Affected'
+    package = ''
 
     upstream_data = requests.get(cveurl).text
-    tableinfo = BeautifulSoup(upstream_data, 'html.parser').find_all('tr')
 
-    for item in tableinfo:
+    pkgname = BeautifulSoup(upstream_data, 'html.parser').find_all('div')
+    for item in pkgname:
+        namematch = re.search(r'Source', item.get_text())
+        if namematch:
+            package = item.text.split()[1]
+
+    pkgvers = BeautifulSoup(upstream_data, 'html.parser').find_all('tr')
+    versregex = re.compile(r'\(\d:\d\.\d.*\)|\(\d\.\d\..*\)')
+    for item in pkgvers:
         relmatch = re.search(releases[rel], item.text)
         if relmatch:
-            pkgmatch = re.search(r'\(\d:\d\.\d.*\)', item.text)
+            cvedata['state'] = 'Affected'
+            pkgmatch = re.search(versregex, item.text)
             if pkgmatch:
-                cvedata['cveurl'] = cveurl
-                cvedata['pkg'] = pkgmatch.group().strip('()')
-    print(cvedata)
+                cvedata['pkg'] = f'{package}-{pkgmatch.group().strip("()")}'
 
     redis_set_data(f'cvechk:{rel}:{cvenum}', cvedata)
     return cvedata
