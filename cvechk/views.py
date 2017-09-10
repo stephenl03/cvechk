@@ -38,9 +38,9 @@ def results():
 
         if not data:
             for cve in cves:
-                if oschoice.startswith('EL_'):
+                if oschoice.startswith('EL'):
                     data = mod_rhel.rh_get_data(oschoice, cve)
-                if oschoice.startswith('UBU_'):
+                if oschoice.startswith('UBU'):
                     data = mod_ubuntu.get_cve_data(cve, oschoice)
 
         return render_template('results.html', form=ResultsForm(),
