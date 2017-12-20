@@ -4,10 +4,10 @@
 # SEVER_NAME should match the URL being handled by cvechk in order to allow
 # for subdomain usage.
 SECRET_KEY = 'changeme'
-SERVER_NAME = 'example.com'
+SERVER_NAME = 'example.com:5000'
 
 # REDISPASS is an optional password being used for the Redis instance.
-REDISDB = 0
-REDISHOST = '127.0.0.1'
-REDISPORT = 6379
-REDISPASS = ''
+REDIS_DB = 0
+REDIS_HOST = '127.0.0.1'
+REDIS_PORT = 6379
+REDIS_PASS = ''

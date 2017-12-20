@@ -5,7 +5,7 @@ import logging
 
 from cvechk import app
 from cvechk.forms import CVEInputForm, ResultsForm
-from cvechk.osmods import mod_rhel
+from cvechk.osmods import mod_rhel, mod_ubuntu
 from cvechk.utils import get_cve_text, redis_get_data
 
 viewlogger = logging.getLogger('cvelogger.views')
@@ -38,7 +38,10 @@ def results():
 
         if not data:
             for cve in cves:
-                data = mod_rhel.rh_get_data(oschoice, cve)
+                if oschoice.startswith('EL'):
+                    data = mod_rhel.rh_get_data(oschoice, cve)
+                if oschoice.startswith('UBU'):
+                    data = mod_ubuntu.get_cve_data(cve, oschoice)
 
         return render_template('results.html', form=ResultsForm(),
                                data=data, os=oschoice)

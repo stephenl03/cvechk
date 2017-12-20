@@ -1,15 +1,33 @@
+# Helper utilities for storing/retrieving data used by cvechk.net
+
+# Copyright (C) 2017 evitalis
+
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
+
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
+
 from cvechk import app
-from cvechk.osmods import mod_rhel
+import cvechk.osmods
 
 import logging
 import re
 import redis
 
 
-redis_host = app.config['REDISHOST']
-redis_port = app.config['REDISPORT']
-redis_pass = app.config['REDISPASS']
-redis_db = app.config['REDISDB']
+redis_host = app.config['REDIS_HOST']
+redis_port = app.config['REDIS_PORT']
+redis_pass = app.config['REDIS_PASS']
+redis_db = app.config['REDIS_DB']
 
 utillogger = logging.getLogger('cvelogger.utils')
 
@@ -36,27 +54,41 @@ def redis_get_data(os, cvelist):
 
     cvedata = {}
     extra = []
-
     for cve in cvelist:
-        cached = redis_conn.hgetall('cvechk:{}:{}'.format(os, cve))
-        if len(cached) > 0:
-            try:
-                cvedata[cve] = {'cveurl': cached['cveurl'],
-                                'pkg': cached['pkg'],
-                                'rhsaurl': cached['rhsaurl'],
-                                'state': cached['state']}
-            except KeyError:
-                cvedata[cve] = {'cveurl': cached['cveurl'],
-                                'state': cached['state']}
-        else:
-            cvedata[cve] = mod_rhel.rh_get_data(os, cve)
+        cached = redis_conn.hgetall(f'cvechk:{os}:{cve}')
+        if os.startswith('EL'):
+            if len(cached) > 0:
+                try:
+                    cvedata[cve] = {'cveurl': cached['cveurl'],
+                                    'pkg': cached['pkg'],
+                                    'rhsaurl': cached['rhsaurl'],
+                                    'state': cached['state']}
+                except KeyError:
+                    cvedata[cve] = {'cveurl': cached['cveurl'],
+                                    'state': cached['state']}
+            else:
+                cvedata[cve] = cvechk.osmods.mod_rhel.rh_get_data(os, cve)
+        if os.startswith('UBU'):
+            if len(cached) > 0:
+                try:
+                    cvedata[cve] = {'cveurl': cached['cveurl'],
+                                    'pkg': cached['pkg'],
+                                    'state': cached['state']}
+                except KeyError:
+                    cvedata[cve] = {'cveurl': cached['cveurl'],
+                                    'state': cached['state']}
+            else:
+                cvedata[cve] = cvechk.osmods.mod_ubuntu.get_cve_data(cve, os)
 
     # Get CVE data from Red Hat API if not found in existing cache data.
     extra = [x for x in cvelist if x not in cvedata.keys()]
     for cve in extra:
-        cvedata[cve] = mod_rhel.rh_get_data(os, cve)
+        if os.startswith('EL'):
+            cvedata[cve] = osmods.mod_rhel.rh_get_data(os, cve)
+        if os.startswith('UBU'):
+            cvedata[cve] = osmods.mod_ubuntu.get_cve_data(cve, os)
 
-        redis_set_data(f'cvechk:{os}:{cve}', cvedata)
+    redis_set_data(f'cvechk:{os}:{cve}', cvedata)
     return cvedata
 
 
