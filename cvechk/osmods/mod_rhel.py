@@ -30,7 +30,7 @@ def rh_api_data(cvenum):
 
     r = requests.get(query)
 
-    if r.status_code != 200 or not r.json:
+    if r.status_code != 200:
         return   {'cveurl': f'https://access.redhat.com/security/cve/{cvenum}',  # noqa
                   'state': 'Not applicable'}
     else:
@@ -38,16 +38,34 @@ def rh_api_data(cvenum):
 
 
 def rh_get_data(os, cve):
-    """ Utilize Red Hat API to get specific data on provided CVE. """
+    os_list = {'EL_6': 'Red Hat Enterprise Linux 6',
+               'EL_7': 'Red Hat Enterprise Linux 7'}
+    cve_url = 'https://access.redhat.com/security/cve/'
 
     rhdata = rh_api_data(cve)
     cvedata = {}
 
-    if rhdata:
-        cvedata = check_affected_rel(rhdata, cve, os)
-    if not cvedata:
-        cvedata = check_release_data(rhdata, cve, os)
-    if not cvedata:
+    if len(rhdata) > 2:
+        affrel = rhdata.get('affected_release', None)
+        if affrel and type(affrel) is list:
+            for rel in affrel:
+                if rel.get('product_name', None) == os_list[os]:
+                    errata_url = 'https://rhn.redhat.com/errata/'
+
+                    advisory = rel['advisory'].replace(':', '-')
+                    advurl = f'{errata_url}{advisory}.html'
+                    package = rel['package']
+                    cvedata = dict(cveurl=cve_url + cve, rhsaurl=advurl,
+                                   pkg=package)
+                    cvedata['state'] = 'Affected'
+        if rhdata.get('package_state', None):
+            states = rhdata['package_state']
+            for state in states:
+                if type(state) is dict:
+                    if state.get('product_name', None) == os_list[os]:
+                        cvedata = dict(cveurl=cve_url + cve)
+                        cvedata['state'] = state.get('fix_state', None)
+    else:
         testurl = requests.get(f'https://access.redhat.com/security/cve/{cve}')
         if testurl.status_code == 404:
             rhellogger.warning(f'{cve} data not available from Red Hat API')
@@ -55,52 +73,7 @@ def rh_get_data(os, cve):
                        'state': 'Not found in Red Hat database'}
         else:
             rhellogger.info(f'{cve} found but not applicable for {os}')
-            cvedata = {'cveurl': f'https://access.redhat.com/security/cve/{cve}'} # noqa
+            cvedata = {'cveurl': f'https://access.redhat.com/security/cve/{cve}'}  # noqa
 
     redis_set_data(f'cvechk:{os}:{cve}', cvedata)
-    return cvedata
-
-
-def check_affected_rel(rhdata, cve, os):
-    os_list = {'EL_6': 'Red Hat Enterprise Linux 6',
-               'EL_7': 'Red Hat Enterprise Linux 7'}
-
-    cve_url = 'https://access.redhat.com/security/cve/'
-    errata_url = 'https://rhn.redhat.com/errata/'
-
-    cvedata = {}
-    try:
-        for ar in rhdata['affected_release']:
-            if ar['product_name'] == os_list[os]:
-                ''' Fix the advisory URL here to be a proper URL format. '''
-                advisory = ar['advisory'].replace(':', '-')
-                rhsa_url = f'{errata_url}{advisory}.html'
-                package = ar['package']
-
-                cvedata = dict(cveurl=cve_url + cve, rhsaurl=rhsa_url,
-                               pkg=package)
-                cvedata['state'] = 'Affected'
-                break
-
-        return cvedata
-    except KeyError:
-        rhellogger.warning(f'No affected release found for {cve} ({os})')
-        return None
-
-
-def check_release_data(rhdata, cve, os):
-    os_list = {'EL_6': 'Red Hat Enterprise Linux 6',
-               'EL_7': 'Red Hat Enterprise Linux 7'}
-
-    cve_url = 'https://access.redhat.com/security/cve/'
-
-    cvedata = {}
-    try:
-        for ar in rhdata['package_state']:
-            if ar['product_name'] == os_list[os]:
-                cvedata = dict(cveurl=cve_url + cve)
-                cvedata['state'] = ar['fix_state']
-    except KeyError:
-        rhellogger.warning(f'No updated packages found for {cve} ({os})')
-
     return cvedata
