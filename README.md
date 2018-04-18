@@ -6,10 +6,11 @@ A simple and consolidated method for checking vendor API data for CVE informatio
 
 ### Supported Application/Server Configuration
 Only Python 3.6 is supported at this time, older releases may not work as expected and are considered unsupported.
+No information will provided for operating systems which are end of life per the respective vendor to encourage meeting modern security practices.
 
 The recommended server applications are nginx and gunicorn on operating systems utilizing systemd.
 
-No information will provided for operating systems which are end of life per the respective vendor. This is in an effort to recommend a modern security posture from the operating system level.
+Running cvechk with docker is **not** supported. The files are provided for ease of testing during development only.
 
 ### Available Operating System Lookup
 The following operating systems are currently available for data reporting.
