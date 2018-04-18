@@ -21,6 +21,11 @@ def show_apiinfo():
     return render_template('api_info.html')
 
 
+@app.route('/privacy')
+def display_privacy():
+    return render_template('privacy.html')
+
+
 @app.route('/results', methods=['POST'])
 def results():
     form_cveinput = CVEInputForm()
