@@ -70,6 +70,8 @@ def rh_get_data(os, cve):
                     cvedata = dict(cveurl=cve_url + cve, rhsaurl=advurl,
                                    pkg=package)
                     cvedata['state'] = 'Affected'
+                else:
+                    cvedata = check_url(cve, os)
         elif rhdata.get('package_state', None):
             states = rhdata['package_state']
             for state in states:
