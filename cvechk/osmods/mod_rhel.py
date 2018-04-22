@@ -31,10 +31,22 @@ def rh_api_data(cvenum):
     r = requests.get(query)
 
     if r.status_code != 200:
-        return   {'cveurl': f'https://access.redhat.com/security/cve/{cvenum}',  # noqa
-                  'state': 'Not applicable'}
+        return {'cveurl': f'https://access.redhat.com/security/cve/{cvenum}',
+                'state': 'Not applicable'}
     else:
         return r.json()
+
+
+def check_url(cve, os):
+    testurl = requests.get(f'https://access.redhat.com/security/cve/{cve}')
+    if testurl.status_code == 404:
+        rhellogger.warning(f'{cve} data not available from Red Hat API')
+        return {'cveurl': f'https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve}',  # noqa
+                'state': 'Not found in Red Hat database'}
+    else:
+        rhellogger.info(f'{cve} found but not applicable for {os}')
+        return {'cveurl': f'https://access.redhat.com/security/cve/{cve}',
+                'state': 'Not applicable'}
 
 
 def rh_get_data(os, cve):
@@ -58,22 +70,19 @@ def rh_get_data(os, cve):
                     cvedata = dict(cveurl=cve_url + cve, rhsaurl=advurl,
                                    pkg=package)
                     cvedata['state'] = 'Affected'
-        if rhdata.get('package_state', None):
+        elif rhdata.get('package_state', None):
             states = rhdata['package_state']
             for state in states:
                 if type(state) is dict:
                     if state.get('product_name', None) == os_list[os]:
                         cvedata = dict(cveurl=cve_url + cve)
                         cvedata['state'] = state.get('fix_state', None)
-    else:
-        testurl = requests.get(f'https://access.redhat.com/security/cve/{cve}')
-        if testurl.status_code == 404:
-            rhellogger.warning(f'{cve} data not available from Red Hat API')
-            cvedata = {'cveurl': f'https://cve.mitre.org/cgi-bin/cvename.cgi?name={cve}',  # noqa
-                       'state': 'Not found in Red Hat database'}
+                    if not cvedata.get('state', None):
+                        cvedata = check_url(cve, os)
         else:
-            rhellogger.info(f'{cve} found but not applicable for {os}')
-            cvedata = {'cveurl': f'https://access.redhat.com/security/cve/{cve}'}  # noqa
+            cvedata = check_url(cve, os)
+    else:
+        cvedata = check_url(cve, os)
 
     redis_set_data(f'cvechk:{os}:{cve}', cvedata)
     return cvedata
