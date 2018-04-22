@@ -38,6 +38,13 @@ def rh_api_data(cvenum):
 
 
 def check_url(cve, os):
+    """
+        Helper to form proper URLs if there is an issue with the JSON data
+
+        Return a Red Hat URL if CVE is valid for that platform, otherwise
+        return generic link with additional information.
+    """
+
     testurl = requests.get(f'https://access.redhat.com/security/cve/{cve}')
     if testurl.status_code == 404:
         rhellogger.warning(f'{cve} data not available from Red Hat API')
@@ -64,6 +71,7 @@ def rh_get_data(os, cve):
                 if rel.get('product_name', None) == os_list[os]:
                     errata_url = 'https://rhn.redhat.com/errata/'
 
+                    # Make advisory link URL safe.
                     advisory = rel['advisory'].replace(':', '-')
                     advurl = f'{errata_url}{advisory}.html'
                     package = rel['package']
