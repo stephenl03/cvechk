@@ -54,6 +54,9 @@ def redis_get_data(os, cvelist):
 
     cvedata = {}
     extra = []
+
+    # For each CVE provided get package information if available otherwise
+    # only get CVE number and state.
     for cve in cvelist:
         cached = redis_conn.hgetall(f'cvechk:{os}:{cve}')
         if os.startswith('EL'):
@@ -88,6 +91,7 @@ def redis_get_data(os, cvelist):
         if os.startswith('UBU'):
             cvedata[cve] = osmods.mod_ubuntu.get_cve_data(cve, os)
 
+    # Set cvechk keys with unique prefix to avoid naming conflicts.
     redis_set_data(f'cvechk:{os}:{cve}', cvedata)
     return cvedata
 
