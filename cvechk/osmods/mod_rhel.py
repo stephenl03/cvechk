@@ -21,6 +21,7 @@ from cvechk.utils import redis_set_data
 
 import logging
 import requests
+import time
 
 rhellogger = logging.getLogger('cvelogger.mod_rhel')
 
@@ -28,13 +29,21 @@ rhellogger = logging.getLogger('cvelogger.mod_rhel')
 def rh_api_data(cvenum):
     query = f'https://access.redhat.com/labs/securitydataapi/cve/{cvenum}.json'
 
-    r = requests.get(query)
-
-    if r.status_code != 200:
-        return {'cveurl': f'https://access.redhat.com/security/cve/{cvenum}',
-                'state': 'Not applicable'}
-    else:
-        return r.json()
+    retry = 1
+    while retry >= 0:
+      r = requests.get(query)
+      if r.status_code == 200:
+          return r.json()
+      elif r.status_code == 504:
+          rhellogger.warning(f'Received {r.status_code}. Sleep 1 second, '
+                              'then attempt again')
+          retry -= 1
+          time.sleep(1)
+          continue
+      else:
+          break
+    return {'cveurl': f'https://access.redhat.com/security/cve/{cvenum}',
+            'state': 'Not applicable'}
 
 
 def check_url(cve, os):
